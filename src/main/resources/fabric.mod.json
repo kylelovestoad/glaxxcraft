@@ -1,0 +1,54 @@
+{
+	"schemaVersion": 1,
+	"id": "glaxxcraft",
+	"version": "${version}",
+	"name": "GlaxxCraft",
+	"description": "You LOOOOOVE glaxx",
+	"authors": [
+		"kylelovestoad"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "GPL-3.0-or-later",
+	"icon": "assets/glaxxcraft/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			{
+				"value": "com.kylelovestoad.glaxxcraft.GlaxxCraft",
+				"adapter": "kotlin"
+			}
+		],
+		"client": [
+			{
+				"value": "com.kylelovestoad.glaxxcraft.GlaxxCraftClient",
+				"adapter": "kotlin"
+			}
+		],
+		"fabric-datagen": [
+			{
+				"value": "com.kylelovestoad.glaxxcraft.GlaxxCraftDataGenerator",
+				"adapter": "kotlin"
+			}
+		]
+	},
+	"mixins": [
+		"glaxxcraft.mixins.json",
+		{
+			"config": "glaxxcraft.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.17.2",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*",
+		"fabric-language-kotlin": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
