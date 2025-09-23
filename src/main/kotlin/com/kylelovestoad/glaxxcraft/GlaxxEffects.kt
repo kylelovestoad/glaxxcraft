@@ -2,6 +2,7 @@ package com.kylelovestoad.glaxxcraft
 
 import com.kylelovestoad.glaxxcraft.GlaxxCraft.MOD_ID
 import com.kylelovestoad.glaxxcraft.effects.GroundedEffect
+import com.kylelovestoad.glaxxcraft.effects.PolymorphEffect
 import net.fabricmc.api.ModInitializer
 import net.minecraft.entity.effect.StatusEffect
 import net.minecraft.registry.Registries
@@ -15,6 +16,12 @@ object GlaxxEffects : ModInitializer {
         Registries.STATUS_EFFECT,
         Identifier.of(MOD_ID, "grounded"),
         GroundedEffect()
+    )
+
+    val POLYMORPH: RegistryEntry<StatusEffect> = Registry.registerReference(
+        Registries.STATUS_EFFECT,
+        Identifier.of(MOD_ID, "polymorph"),
+        PolymorphEffect()
     )
 
     override fun onInitialize() {

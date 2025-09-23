@@ -24,7 +24,20 @@ object GlaxxPotions : ModInitializer {
             "grounded",
             StatusEffectInstance(
                 GlaxxEffects.GROUNDED,
-                3600,
+                500,
+                0
+            )
+        )
+    )
+
+    val POLYMORPH_POTION: Potion = Registry.register(
+        Registries.POTION,
+        Identifier.of(MOD_ID, "polymorph"),
+        Potion(
+            "polymorph",
+            StatusEffectInstance(
+                GlaxxEffects.POLYMORPH,
+                1,
                 0
             )
         )
