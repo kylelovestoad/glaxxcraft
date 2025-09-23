@@ -37,13 +37,18 @@ class PortablePortal : Item(Settings()
         val server = player.server ?: return ActionResult.FAIL
         val save = GlaxxSaveState.loadSave(server)
 
-        for (i in 0..portalWidth - 1) {
-            for (j in 0..portalHeight - 1) {
-                for (k in 0..portalDepth - 1) {
+        for (i in 0..<portalWidth) {
+            for (j in 0..<portalHeight) {
+                for (k in 0..<portalDepth) {
                     val blockPos = startPos
                         .add(left.multiply(-i)) // going right from leftmost point
                         .add(up.multiply(-j)) // going down from upmost point
                         .add(playerFacing.vector.multiply(k))
+
+                    val blockState = context.world.getBlockState(blockPos)
+                    // Air cannot not be consumed because it is already nothing, causes issues with intersecting portals
+                    // Bedrock and other unbreakable blocks should not be consumed
+                    if (blockState.isAir || blockState.block.hardness == -1f) continue
 
                     save.portalConsumedBlocks.add(PortalConsumedBlock(
                         blockPos,

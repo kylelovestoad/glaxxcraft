@@ -3,21 +3,16 @@ package com.kylelovestoad.glaxxcraft
 import com.kylelovestoad.glaxxcraft.items.PortalConsumedBlock
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.minecraft.block.BlockState
 import net.minecraft.datafixer.DataFixTypes
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtOps
 import net.minecraft.registry.RegistryWrapper
 import net.minecraft.server.MinecraftServer
-import net.minecraft.util.math.BlockPos
 import net.minecraft.world.PersistentState
-import net.minecraft.world.PersistentStateManager
-import java.util.function.BiFunction
-import java.util.function.Function
 
 
 data class GlaxxSaveState(
-    val portalConsumedBlocks:  MutableList<PortalConsumedBlock>
+    var portalConsumedBlocks:  MutableList<PortalConsumedBlock>
 ) : PersistentState() {
 
     constructor() : this(mutableListOf())

@@ -26,7 +26,7 @@ object GlaxxCraft : ModInitializer {
 		GlaxxDataComponents.onInitialize()
 		GlaxxAttachmentTypes.onInitialize()
 
-		ServerLivingEntityEvents.ALLOW_DAMAGE.register { entity, source, amount ->
+		ServerLivingEntityEvents.ALLOW_DAMAGE.register { entity, source, _ ->
 			// We only care about players receiving fall damage
 			if (entity !is ServerPlayerEntity || !source.isOf(DamageTypes.FALL)) {
 				return@register true
@@ -43,16 +43,19 @@ object GlaxxCraft : ModInitializer {
 
 			println(save.portalConsumedBlocks.size)
 
-//			save.portalConsumedBlocks.removeIf { consumedBlock ->
-//				consumedBlock.ticksLeft--;
-//
-//				if (consumedBlock.ticksLeft <= 0) {
-//					val world = server.getWorld(consumedBlock.worldRegistryKey) ?: return@removeIf true
-//					world.setBlockState(consumedBlock.blockPos, consumedBlock.blockState)
-//					return@removeIf true
-//				}
-//				return@removeIf false
-//			}
+            val newBlocks = save.portalConsumedBlocks.toMutableList()
+            newBlocks.removeIf { consumedBlock ->
+                consumedBlock.ticksLeft--
+
+                if (consumedBlock.ticksLeft <= 0) {
+                    val world = server.getWorld(consumedBlock.worldRegistryKey) ?: return@removeIf true
+                    world.setBlockState(consumedBlock.blockPos, consumedBlock.blockState)
+                    return@removeIf true
+                }
+                return@removeIf false
+            }
+
+			save.portalConsumedBlocks = newBlocks
 		}
 	}
 }
