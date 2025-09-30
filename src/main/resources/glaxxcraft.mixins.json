@@ -1,15 +1,16 @@
 {
-	"required": true,
-	"package": "com.kylelovestoad.glaxxcraft.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"ExampleMixin",
-		"AllowJumpMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"overwrites": {
-		"requireAnnotations": true
+  "required": true,
+  "package": "com.kylelovestoad.glaxxcraft.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "AllowJumpMixin",
+    "ExampleMixin",
+    "ModifyDamageMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
 	}
 }

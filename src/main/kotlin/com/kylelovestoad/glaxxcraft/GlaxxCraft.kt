@@ -22,7 +22,6 @@ object GlaxxCraft : ModInitializer {
 
 		GlaxxItems.onInitialize()
 		GlaxxEffects.onInitialize()
-		GlaxxPotions.onInitialize()
 		GlaxxDataComponents.onInitialize()
 		GlaxxAttachmentTypes.onInitialize()
 
