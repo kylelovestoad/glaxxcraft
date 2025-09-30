@@ -41,8 +41,6 @@ object GlaxxCraft : ModInitializer {
 
 			val save = GlaxxSaveState.loadSave(server)
 
-			println(save.portalConsumedBlocks.size)
-
             val newBlocks = save.portalConsumedBlocks.toMutableList()
             newBlocks.removeIf { consumedBlock ->
                 consumedBlock.ticksLeft--

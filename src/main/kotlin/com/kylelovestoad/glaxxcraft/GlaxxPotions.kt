@@ -43,6 +43,19 @@ object GlaxxPotions : ModInitializer {
         )
     )
 
+    val CHAOTIC_POLYMORPH_POTION: Potion = Registry.register(
+        Registries.POTION,
+        Identifier.of(MOD_ID, "chaotic_polymorph"),
+        Potion(
+            "chaotic_polymorph",
+            StatusEffectInstance(
+                GlaxxEffects.CHAOTIC_POLYMORPH,
+                1,
+                0
+            )
+        )
+    )
+
     override fun onInitialize() {
         FabricBrewingRecipeRegistryBuilder.BUILD.register(BuildCallback { builder: BrewingRecipeRegistry.Builder ->
             builder.registerPotionRecipe(
