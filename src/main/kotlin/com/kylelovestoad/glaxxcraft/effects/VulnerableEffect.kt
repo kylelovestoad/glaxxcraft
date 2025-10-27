@@ -7,5 +7,5 @@ import net.minecraft.entity.effect.StatusEffectCategory
 
 class VulnerableEffect : StatusEffect(
     StatusEffectCategory.HARMFUL,
-    0x0
+    0x590016
 )

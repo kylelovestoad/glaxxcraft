@@ -3,10 +3,12 @@ package com.kylelovestoad.glaxxcraft
 import com.kylelovestoad.glaxxcraft.GlaxxCraft.MOD_ID
 import com.kylelovestoad.glaxxcraft.effects.ChaoticPolymorphEffect
 import com.kylelovestoad.glaxxcraft.effects.GroundedEffect
+import com.kylelovestoad.glaxxcraft.effects.MantleEffect
 import com.kylelovestoad.glaxxcraft.effects.PigPolymorphEffect
 import com.kylelovestoad.glaxxcraft.effects.VulnerableEffect
 import com.kylelovestoad.glaxxcraft.events.AllowJump
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder.BuildCallback
 import net.minecraft.entity.effect.StatusEffect
@@ -18,6 +20,8 @@ import net.minecraft.recipe.BrewingRecipeRegistry
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 import net.minecraft.registry.entry.RegistryEntry
+import net.minecraft.sound.SoundCategory
+import net.minecraft.sound.SoundEvents
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Identifier
 
@@ -40,8 +44,7 @@ object GlaxxEffects : ModInitializer {
     val VULNERABLE_POTION: Potion = registerPotion("vulnerable",VULNERABLE, 3600, 0)
     val VULNERABLE_POTION_II: Potion = registerPotion("vulnerable_ii",VULNERABLE, 1800, 1)
 
-
-
+    val MANTLE: RegistryEntry<StatusEffect> = registerEffect("mantle", MantleEffect())
 
     fun registerEffect(name: String, effect: StatusEffect): RegistryEntry<StatusEffect> {
         return Registry.registerReference(
@@ -74,11 +77,22 @@ object GlaxxEffects : ModInitializer {
 
         AllowJump.EVENT.register { entity ->
 
-            if (entity.hasStatusEffect(GlaxxEffects.GROUNDED)) {
+            if (entity.hasStatusEffect(GROUNDED)) {
                 return@register ActionResult.FAIL
             }
 
             return@register ActionResult.PASS
+        }
+
+        ServerLivingEntityEvents.ALLOW_DAMAGE.register{ entity, source, amount ->
+
+            if (entity.hasStatusEffect(MANTLE)) {
+                entity.removeStatusEffect(MANTLE)
+                entity.world.playSound(null, entity.blockPos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(), SoundCategory.MASTER, 1f, 2f)
+                return@register false
+            }
+
+            return@register true
         }
     }
 }
