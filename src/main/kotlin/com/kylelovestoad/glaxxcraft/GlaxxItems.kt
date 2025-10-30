@@ -2,6 +2,7 @@ package com.kylelovestoad.glaxxcraft
 
 import com.kylelovestoad.glaxxcraft.GlaxxCraft.MOD_ID
 import com.kylelovestoad.glaxxcraft.items.DashItem
+import com.kylelovestoad.glaxxcraft.items.KeyItem
 import com.kylelovestoad.glaxxcraft.items.PortablePortal
 import net.fabricmc.api.ModInitializer
 import net.minecraft.item.Item
@@ -15,6 +16,7 @@ object GlaxxItems : ModInitializer {
 
     val DASH = register("dash", DashItem())
     val PORTABLE_PORTAL = register("portable_portal", PortablePortal())
+    val KEY = register("key", KeyItem())
 
     fun register(name: String, item: Item): Item {
         // Create the item key.

@@ -24,6 +24,8 @@ object GlaxxCraft : ModInitializer {
 		GlaxxEffects.onInitialize()
 		GlaxxDataComponents.onInitialize()
 		GlaxxAttachmentTypes.onInitialize()
+        GlaxxBlocks.onInitialize()
+        GlaxxBlockEntities.onInitialize()
 
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register { entity, source, _ ->
 			// We only care about players receiving fall damage
