@@ -1,6 +1,8 @@
 package com.kylelovestoad.glaxxcraft
 
 import com.kylelovestoad.glaxxcraft.GlaxxCraft.MOD_ID
+import com.kylelovestoad.glaxxcraft.blocks.lockedchest.LockedChestBlock
+import com.kylelovestoad.glaxxcraft.blocks.lockedchest.LockedChestBlockItem
 import com.kylelovestoad.glaxxcraft.items.DashItem
 import com.kylelovestoad.glaxxcraft.items.KeyItem
 import com.kylelovestoad.glaxxcraft.items.PortablePortal
@@ -18,13 +20,12 @@ object GlaxxItems : ModInitializer {
     val PORTABLE_PORTAL = register("portable_portal", PortablePortal())
     val KEY = register("key", KeyItem())
 
+    val LOCKED_CHEST = register("locked_chest", LockedChestBlockItem())
+
     fun register(name: String, item: Item): Item {
-        // Create the item key.
         val itemKey: RegistryKey<Item> =
             RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, name))
 
-
-        // Register the item.
         val registeredItem = Registry.register(Registries.ITEM, itemKey, item)
 
         return registeredItem

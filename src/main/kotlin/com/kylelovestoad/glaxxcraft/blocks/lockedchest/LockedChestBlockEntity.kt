@@ -10,35 +10,36 @@ import net.minecraft.registry.Registries
 import net.minecraft.registry.RegistryWrapper
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import java.util.UUID
+import java.util.*
+
 
 class LockedChestBlockEntity(pos: BlockPos, state: BlockState)
     : ChestBlockEntity(GlaxxBlockEntities.LOCKED_CHEST, pos, state) {
 
-    var keyId: UUID? = null
+    var owner: UUID? = null
 
     var original: Block? = null
 
     public override fun writeNbt(nbt: NbtCompound, registryLookup: RegistryWrapper.WrapperLookup) {
         super.writeNbt(nbt, registryLookup)
-        keyId?.let {
-            nbt.putUuid(GlaxxDataComponents.KEY_ID_COMPONENT_NAME, it)
+        owner?.let {
+            nbt.putUuid("owner", it)
         }
 
         original?.let {
             val blockId = Registries.BLOCK.getId(it)
-            nbt.putString("Original", blockId.toString())
+            nbt.putString("original", blockId.toString())
         }
     }
 
     public override fun readNbt(nbt: NbtCompound, registryLookup: RegistryWrapper.WrapperLookup) {
         super.readNbt(nbt, registryLookup)
-        if (nbt.containsUuid(GlaxxDataComponents.KEY_ID_COMPONENT_NAME)) {
-            keyId = nbt.getUuid(GlaxxDataComponents.KEY_ID_COMPONENT_NAME)
+        if (nbt.containsUuid("owner")) {
+            owner = nbt.getUuid("owner")
         }
 
-        if (nbt.contains("OriginalBlock")) {
-            val blockId = Identifier.of(nbt.getString("OriginalBlock"))
+        if (nbt.contains("original")) {
+            val blockId = Identifier.of(nbt.getString("original"))
             original = Registries.BLOCK.get(blockId)
         }
     }
