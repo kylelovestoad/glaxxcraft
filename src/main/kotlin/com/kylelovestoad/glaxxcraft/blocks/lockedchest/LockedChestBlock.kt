@@ -77,10 +77,12 @@ class LockedChestBlock(
 
         if (!isOwner(blockEntity, player) and !player.isCreative) {
             if (!world.isClient) {
+                println("TEST")
                 player.sendMessage(Text.translatable("container.locked_chest.locked", blockEntity.owner), true)
             }
             return ActionResult.FAIL
         }
+
 
         return super.onUse(state, world, pos, player, hit)
     }

@@ -6,6 +6,7 @@ import net.minecraft.client.network.ClientPlayerEntity
 import net.minecraft.text.Text
 
 
+
 object GlaxxCraftClient : ClientModInitializer {
 
 	override fun onInitializeClient() {
