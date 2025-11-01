@@ -9,11 +9,13 @@ import net.minecraft.nbt.NbtOps
 import net.minecraft.registry.RegistryWrapper
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.PersistentState
+import net.minecraft.world.PersistentStateType
 
 
 data class GlaxxSaveState(
     var portalConsumedBlocks:  MutableList<PortalConsumedBlock>
 ) : PersistentState() {
+
 
     constructor() : this(mutableListOf())
 
@@ -23,29 +25,12 @@ data class GlaxxSaveState(
                 PortalConsumedBlock.CODEC.listOf().fieldOf("portalConsumedBlocks").forGetter(GlaxxSaveState::portalConsumedBlocks)
             ).apply<GlaxxSaveState>(instance, ::GlaxxSaveState)
         }
-        val TYPE: Type<GlaxxSaveState> = Type(::GlaxxSaveState, GlaxxSaveState::readFromNbt, DataFixTypes.LEVEL)
-
-        fun readFromNbt(save: NbtCompound, registryLookup: RegistryWrapper.WrapperLookup): GlaxxSaveState? {
-            val result = CODEC.decode(NbtOps.INSTANCE, save.get("glaxx_data")).result()
-            if (result.isPresent) { // If we successfully loaded the PersistentState
-                return result.get().getFirst();
-            }
-
-            return null;
-        }
+        val TYPE = PersistentStateType<GlaxxSaveState>("glaxxcraft", ::GlaxxSaveState, CODEC, DataFixTypes.LEVEL)
 
         fun loadSave(server: MinecraftServer): GlaxxSaveState  {
             val stateManager = server.overworld.persistentStateManager
-            val state = stateManager.getOrCreate(TYPE, "glaxx");
+            val state = stateManager.getOrCreate(TYPE);
             return state
         }
-    }
-
-    override fun writeNbt(
-        nbt: NbtCompound,
-        registryLookup: RegistryWrapper.WrapperLookup
-    ): NbtCompound {
-        nbt.put("glaxx_data", CODEC.encode(this, NbtOps.INSTANCE, NbtOps.INSTANCE.empty()).getOrThrow())
-        return nbt
     }
 }

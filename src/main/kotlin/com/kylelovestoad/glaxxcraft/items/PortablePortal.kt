@@ -7,9 +7,7 @@ import net.minecraft.item.ItemUsageContext
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Rarity
 
-class PortablePortal : Item(Settings()
-    .maxCount(1)
-    .rarity(Rarity.UNCOMMON)) {
+class PortablePortal(settings: Settings) : Item(settings) {
     val portalWidth = 3
     val portalHeight = 3
     val portalDepth = 20
@@ -32,7 +30,7 @@ class PortablePortal : Item(Settings()
             .add(up.multiply(portalHeight / 2))
             .add(left.multiply(portalWidth / 2))
 
-        val server = player.server ?: return ActionResult.FAIL
+        val server = context.world.server ?: return ActionResult.FAIL
         val save = GlaxxSaveState.loadSave(server)
 
         for (i in 0..<portalWidth) {
@@ -44,7 +42,7 @@ class PortablePortal : Item(Settings()
                         .add(playerFacing.vector.multiply(k))
 
                     val blockState = context.world.getBlockState(blockPos)
-                    // Air cannot not be consumed because it is already nothing, causes issues with intersecting portals
+                    // Air cannot be consumed because it is already nothing, causes issues with intersecting portals
                     // Bedrock and other unbreakable blocks should not be consumed
                     if (blockState.isAir || blockState.block.hardness == -1f) continue
 
@@ -62,7 +60,7 @@ class PortablePortal : Item(Settings()
             }
         }
 
-        player.itemCooldownManager.set(this, cooldownTicks)
+        player.itemCooldownManager.set(context.stack, cooldownTicks)
 
         return ActionResult.SUCCESS
     }

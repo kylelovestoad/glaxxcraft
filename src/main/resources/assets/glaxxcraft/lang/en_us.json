@@ -5,6 +5,6 @@
   "item.glaxxcraft.dash": "Dash Zorb",
   "effect.glaxxcraft.grounded": "Grounded",
   "item.glaxxcraft.locked_chest.tooltip": "Owner: %s",
-  "container.locked_chest.locked": "This chest is locked by %s",
-  "container.locked_chest.failbreak": "You cannot break %s's chest!"
+  "container.locked_chest.locked": "This chest is locked",
+  "container.locked_chest.failbreak": "You cannot break this chest because it is locked!"
 }

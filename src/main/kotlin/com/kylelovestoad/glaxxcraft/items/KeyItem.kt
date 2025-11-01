@@ -3,17 +3,21 @@ package com.kylelovestoad.glaxxcraft.items
 import com.kylelovestoad.glaxxcraft.GlaxxBlocks
 import com.kylelovestoad.glaxxcraft.GlaxxDataComponents
 import com.kylelovestoad.glaxxcraft.blocks.lockedchest.LockedChestBlockEntity
+import net.fabricmc.fabric.api.serialization.v1.view.FabricReadView
 import net.minecraft.block.Blocks
 import net.minecraft.block.ChestBlock
 import net.minecraft.block.entity.ChestBlockEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemUsageContext
+import net.minecraft.storage.NbtReadView
+import net.minecraft.storage.ReadView
 import net.minecraft.util.ActionResult
+import net.minecraft.util.ErrorReporter
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import java.util.UUID
 
-class KeyItem : Item(Settings().maxCount(1))
+class KeyItem(settings: Settings) : Item(settings)
 
 {
 
@@ -31,6 +35,8 @@ class KeyItem : Item(Settings().maxCount(1))
         val oldChestEntity = world.getBlockEntity(blockPos) as? ChestBlockEntity ?: return ActionResult.FAIL
 
         val nbt = oldChestEntity.createNbt(world.registryManager)
+        val readView = NbtReadView.create(ErrorReporter.EMPTY, world.registryManager, nbt)
+
         oldChestEntity.clear()
 
         val oldState = world.getBlockState(blockPos)
@@ -46,7 +52,7 @@ class KeyItem : Item(Settings().maxCount(1))
 
         val newChestEntity = world.getBlockEntity(blockPos) as? LockedChestBlockEntity ?: return ActionResult.FAIL
 
-        newChestEntity.readNbt(nbt, world.registryManager)
+        newChestEntity.readData(readView)
         newChestEntity.owner = player.uuid
         newChestEntity.markDirty()
 

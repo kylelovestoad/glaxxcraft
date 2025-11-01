@@ -3,19 +3,18 @@ package com.kylelovestoad.glaxxcraft.items
 import com.kylelovestoad.glaxxcraft.GlaxxDataComponents
 import net.minecraft.SharedConstants
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EquipmentSlot
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.server.world.ServerWorld
+import net.minecraft.util.ActionResult
 import net.minecraft.util.Hand
 import net.minecraft.util.Rarity
-import net.minecraft.util.TypedActionResult
 import net.minecraft.world.World
 import kotlin.math.round
 
-class DashItem : Item(Settings()
-    .maxCount(1)
-    .rarity(Rarity.EPIC)
-) {
+class DashItem(settings: Settings) : Item(settings) {
 
     val maxDashes = 2
 
@@ -32,36 +31,32 @@ class DashItem : Item(Settings()
         player.velocity = player.rotationVector.multiply(dashSpeed.toDouble())
     }
 
-    override fun use(world: World?, user: PlayerEntity?, hand: Hand?): TypedActionResult<ItemStack?>? {
+    override fun use(world: World?, user: PlayerEntity?, hand: Hand?): ActionResult {
         super.use(world, user, hand)
 
         if (user == null) {
-            return TypedActionResult.fail(ItemStack.EMPTY)
+            return ActionResult.FAIL
         }
 
         val stack = user.getStackInHand(hand)
         val dashes = stack.get(GlaxxDataComponents.DASHES) ?: maxDashes
 
         if (dashes <= 0) {
-            return TypedActionResult.fail(stack)
+            return ActionResult.FAIL
         }
 
         dash(user)
 
-        user.itemCooldownManager.set(this, dashCooldownTicks)
+        user.itemCooldownManager.set(stack, dashCooldownTicks)
         stack.set(GlaxxDataComponents.DASHES, dashes - 1)
         stack.set(GlaxxDataComponents.DASHING, true)
         stack.set(GlaxxDataComponents.DASH_TICKS_LEFT, dashTicks)
 
-        return TypedActionResult.success(stack)
+        return ActionResult.SUCCESS
     }
 
-    override fun inventoryTick(stack: ItemStack?, world: World?, entity: Entity?, slot: Int, selected: Boolean) {
+    override fun inventoryTick(stack: ItemStack, world: ServerWorld, entity: Entity, slot: EquipmentSlot?) {
         if (entity !is PlayerEntity) {
-            return
-        }
-
-        if (stack == null) {
             return
         }
 

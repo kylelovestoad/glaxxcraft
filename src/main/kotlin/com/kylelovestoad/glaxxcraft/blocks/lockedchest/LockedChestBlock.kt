@@ -1,6 +1,7 @@
 package com.kylelovestoad.glaxxcraft.blocks.lockedchest
 
 import com.kylelovestoad.glaxxcraft.GlaxxDataComponents
+import net.minecraft.block.AbstractBlock
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.ChestBlock
@@ -11,26 +12,35 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.server.ServerMetadata
+import net.minecraft.sound.SoundCategory
+import net.minecraft.sound.SoundEvent
+import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.hit.BlockHitResult
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.BlockView
 import net.minecraft.world.World
+import java.util.UUID
 import java.util.function.Supplier
+import kotlin.jvm.optionals.getOrNull
 
 class LockedChestBlock(
+    blockEntityTypeSupplier: Supplier<BlockEntityType<out ChestBlockEntity>>,
     settings: Settings,
-    blockEntityTypeSupplier: Supplier<BlockEntityType<out ChestBlockEntity>>
-) : ChestBlock(settings, blockEntityTypeSupplier) {
+) : ChestBlock(
+    blockEntityTypeSupplier,
+    SoundEvents.BLOCK_CHEST_OPEN,
+    SoundEvents.BLOCK_CHEST_CLOSE,
+    settings
+) {
 
 
     override fun createBlockEntity(pos: BlockPos, state: BlockState): BlockEntity {
         return LockedChestBlockEntity(pos, state)
     }
 
-    fun isOwner(blockEntity: LockedChestBlockEntity, player: PlayerEntity): Boolean {
-        val owner = blockEntity.owner ?: return false
+    fun isOwner(owner: UUID, player: PlayerEntity): Boolean {
         return player.uuid == owner
     }
 
@@ -42,8 +52,9 @@ class LockedChestBlock(
     ): Float {
 
         val blockEntity = world.getBlockEntity(pos) as? LockedChestBlockEntity ?: return 0.0f
+        val owner = blockEntity.owner ?: return 0.0f
 
-        if (!isOwner(blockEntity, player)) {
+        if (!isOwner(owner, player)) {
             return 0.0f
         }
 
@@ -54,10 +65,11 @@ class LockedChestBlock(
     override fun onBlockBreakStart(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity) {
 
         val blockEntity = world.getBlockEntity(pos) as? LockedChestBlockEntity ?: return
+        val owner = blockEntity.owner ?: return
 
-        if (!isOwner(blockEntity, player)) {
+        if (!isOwner(owner, player)) {
             if (!world.isClient) {
-                player.sendMessage(Text.translatable("container.locked_chest.failbreak", blockEntity.owner), true)
+                player.sendMessage(Text.translatable("container.locked_chest.failbreak"), true)
             }
             return
         }
@@ -74,15 +86,15 @@ class LockedChestBlock(
     ): ActionResult {
 
         val blockEntity = world.getBlockEntity(pos) as? LockedChestBlockEntity ?: return ActionResult.FAIL
+        val owner = blockEntity.owner ?: return ActionResult.FAIL
 
-        if (!isOwner(blockEntity, player) and !player.isCreative) {
+        if (!isOwner(owner, player) and !player.isCreative) {
             if (!world.isClient) {
-                println("TEST")
-                player.sendMessage(Text.translatable("container.locked_chest.locked", blockEntity.owner), true)
+                player.playSoundToPlayer(SoundEvents.BLOCK_CHEST_LOCKED, SoundCategory.BLOCKS, 1f, 1.5f)
+                player.sendMessage(Text.translatable("container.locked_chest.locked"), true)
             }
             return ActionResult.FAIL
         }
-
 
         return super.onUse(state, world, pos, player, hit)
     }

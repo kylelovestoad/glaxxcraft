@@ -2,6 +2,7 @@ package com.kylelovestoad.glaxxcraft
 
 import com.kylelovestoad.glaxxcraft.blocks.lockedchest.LockedChestBlockEntity
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.`object`.builder.v1.block.entity.FabricBlockEntityTypeBuilder
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.registry.Registries
@@ -12,7 +13,7 @@ object GlaxxBlockEntities : ModInitializer {
     val LOCKED_CHEST: BlockEntityType<LockedChestBlockEntity> = Registry.register(
         Registries.BLOCK_ENTITY_TYPE,
         Identifier.of(GlaxxCraft.MOD_ID, "locked_chest"),
-        BlockEntityType.Builder.create(
+        FabricBlockEntityTypeBuilder.create(
             ::LockedChestBlockEntity,
             GlaxxBlocks.LOCKED_CHEST
         ).build()

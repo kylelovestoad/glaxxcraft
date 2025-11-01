@@ -11,7 +11,4 @@ class MantleEffect : StatusEffect(
     0x89CFF0,
     ParticleTypes.FIREWORK
 ) {
-    override fun createParticle(effect: StatusEffectInstance?): ParticleEffect? {
-        return super.createParticle(effect)
-    }
 }

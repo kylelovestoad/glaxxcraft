@@ -13,22 +13,21 @@ import net.minecraft.registry.Registry
 import net.minecraft.registry.RegistryKey
 import net.minecraft.registry.RegistryKeys
 import net.minecraft.util.Identifier
+import net.minecraft.util.Rarity
+import java.util.function.Supplier
 
 object GlaxxItems : ModInitializer {
 
-    val DASH = register("dash", DashItem())
-    val PORTABLE_PORTAL = register("portable_portal", PortablePortal())
-    val KEY = register("key", KeyItem())
+    val DASH: Item = register("dash") { settings -> DashItem(settings) }
+    val PORTABLE_PORTAL: Item = register("portable_portal") { settings -> PortablePortal(settings) }
+    val KEY: Item = register("key") { settings -> KeyItem(settings) }
+    val LOCKED_CHEST: Item = register("locked_chest") { settings -> LockedChestBlockItem(settings) }
 
-    val LOCKED_CHEST = register("locked_chest", LockedChestBlockItem())
-
-    fun register(name: String, item: Item): Item {
-        val itemKey: RegistryKey<Item> =
-            RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, name))
-
-        val registeredItem = Registry.register(Registries.ITEM, itemKey, item)
-
-        return registeredItem
+    private fun register(name: String, factory: (Item.Settings) -> Item): Item {
+        val itemKey: RegistryKey<Item> = RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, name))
+        val settings = Item.Settings().registryKey(itemKey)
+        val item = factory(settings)
+        return Registry.register(Registries.ITEM, itemKey, item)
     }
 
     override fun onInitialize() {}

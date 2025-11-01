@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder.BuildCallback
 import net.minecraft.entity.effect.StatusEffect
 import net.minecraft.entity.effect.StatusEffectInstance
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.Items
 import net.minecraft.potion.Potion
 import net.minecraft.potion.Potions
@@ -88,7 +89,10 @@ object GlaxxEffects : ModInitializer {
 
             if (entity.hasStatusEffect(MANTLE)) {
                 entity.removeStatusEffect(MANTLE)
-                entity.world.playSound(null, entity.blockPos, SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(), SoundCategory.MASTER, 1f, 2f)
+
+                if (entity is PlayerEntity) {
+                    entity.playSoundToPlayer(SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(), SoundCategory.PLAYERS,1f, 2f)
+                }
                 return@register false
             }
 
