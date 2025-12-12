@@ -1,6 +1,7 @@
 package com.kylelovestoad.glaxxcraft.items
 
 import com.kylelovestoad.glaxxcraft.GlaxxSaveState
+import net.minecraft.block.Block
 import net.minecraft.block.Blocks
 import net.minecraft.item.Item
 import net.minecraft.item.ItemUsageContext
@@ -55,7 +56,7 @@ class PortablePortal(settings: Settings) : Item(settings) {
 
                     save.markDirty()
 
-                    context.world.setBlockState(blockPos, Blocks.AIR.defaultState)
+                    context.world.setBlockState(blockPos, Blocks.AIR.defaultState, Block.FORCE_STATE_AND_SKIP_CALLBACKS_AND_DROPS)
                 }
             }
         }

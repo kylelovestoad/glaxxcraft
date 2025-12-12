@@ -34,11 +34,11 @@ abstract class PolymorphEffect : StatusEffect {
         val pitch = target.pitch
         val headYaw = target.headYaw
 
-        if (target.isPlayer) target.kill(world) else target.discard()
-
         val createdEntityType = getPolymorphedEntity() ?: return
-
         if (target.type == createdEntityType) return
+        if (target.isPlayer) return
+
+        target.discard()
 
         val createdEntity = createdEntityType.create(
             world,
