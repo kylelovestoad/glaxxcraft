@@ -3,14 +3,14 @@ package com.kylelovestoad.glaxxcraft
 import com.kylelovestoad.glaxxcraft.GlaxxCraft.MOD_ID
 import com.kylelovestoad.glaxxcraft.blocks.lockedchest.LockedChestBlock
 import net.fabricmc.api.ModInitializer
-import net.minecraft.block.AbstractBlock
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.registry.Registries
-import net.minecraft.registry.Registry
-import net.minecraft.registry.RegistryKey
-import net.minecraft.registry.RegistryKeys
-import net.minecraft.util.Identifier
+import net.minecraft.world.level.block.state.BlockBehaviour
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.Registry
+import net.minecraft.resources.ResourceKey
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.Identifier
 
 object GlaxxBlocks : ModInitializer {
     val LOCKED_CHEST: LockedChestBlock = register(
@@ -23,11 +23,11 @@ object GlaxxBlocks : ModInitializer {
         }
     )
 
-    private fun <T : Block> register(name: String, factory: (AbstractBlock.Settings) -> T): T {
-        val blockKey: RegistryKey<Block> = RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(MOD_ID, name))
-        val settings = AbstractBlock.Settings.create().registryKey(blockKey)
+    private fun <T : Block> register(name: String, factory: (BlockBehaviour.Properties) -> T): T {
+        val blockKey: ResourceKey<Block> = ResourceKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(MOD_ID, name))
+        val settings = BlockBehaviour.Properties.of().setId(blockKey)
         val block = factory(settings)
-        return Registry.register(Registries.BLOCK, blockKey, block)
+        return Registry.register(BuiltInRegistries.BLOCK, blockKey, block)
     }
 
     override fun onInitialize() {}

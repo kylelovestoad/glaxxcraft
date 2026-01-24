@@ -2,19 +2,19 @@ package com.kylelovestoad.glaxxcraft.items
 
 import com.kylelovestoad.glaxxcraft.GlaxxDataComponents
 import net.minecraft.SharedConstants
-import net.minecraft.entity.Entity
-import net.minecraft.entity.EquipmentSlot
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Hand
-import net.minecraft.util.Rarity
-import net.minecraft.world.World
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.item.Rarity
+import net.minecraft.world.level.Level
 import kotlin.math.round
 
-class DashItem(settings: Settings) : Item(settings) {
+class DashItem(settings: Properties) : Item(settings) {
 
     val maxDashes = 2
 
@@ -27,36 +27,32 @@ class DashItem(settings: Settings) : Item(settings) {
     private val dashTicks = round(dashTime * SharedConstants.TICKS_PER_SECOND).toInt()
     private val dashCooldownTicks = round(dashCooldown * SharedConstants.TICKS_PER_SECOND).toInt()
 
-    fun dash(player: PlayerEntity) {
-        player.velocity = player.rotationVector.multiply(dashSpeed.toDouble())
+    fun dash(player: Player) {
+        player.deltaMovement = player.lookAngle.scale(dashSpeed.toDouble())
     }
 
-    override fun use(world: World?, user: PlayerEntity?, hand: Hand?): ActionResult {
+    override fun use(world: Level, user: Player, hand: InteractionHand): InteractionResult {
         super.use(world, user, hand)
 
-        if (user == null) {
-            return ActionResult.FAIL
-        }
-
-        val stack = user.getStackInHand(hand)
+        val stack = user.getItemInHand(hand)
         val dashes = stack.get(GlaxxDataComponents.DASHES) ?: maxDashes
 
         if (dashes <= 0) {
-            return ActionResult.FAIL
+            return InteractionResult.FAIL
         }
 
         dash(user)
 
-        user.itemCooldownManager.set(stack, dashCooldownTicks)
+        user.cooldowns.addCooldown(stack, dashCooldownTicks)
         stack.set(GlaxxDataComponents.DASHES, dashes - 1)
         stack.set(GlaxxDataComponents.DASHING, true)
         stack.set(GlaxxDataComponents.DASH_TICKS_LEFT, dashTicks)
 
-        return ActionResult.SUCCESS
+        return InteractionResult.SUCCESS
     }
 
-    override fun inventoryTick(stack: ItemStack, world: ServerWorld, entity: Entity, slot: EquipmentSlot?) {
-        if (entity !is PlayerEntity) {
+    override fun inventoryTick(stack: ItemStack, world: ServerLevel, entity: Entity, slot: EquipmentSlot?) {
+        if (entity !is Player) {
             return
         }
 
@@ -73,7 +69,7 @@ class DashItem(settings: Settings) : Item(settings) {
         }
 
 
-        if (entity.isInFluid) {
+        if (entity.isInLiquid) {
             // Emulating niche Celeste mechanic where leaving water while dashing lets you keep your dash
             stack.set(GlaxxDataComponents.DASHES, maxDashes + 1)
             stack.set(GlaxxDataComponents.WAS_IN_FLUID, true)
@@ -84,7 +80,7 @@ class DashItem(settings: Settings) : Item(settings) {
             stack.set(GlaxxDataComponents.WAS_IN_FLUID, false)
         }
 
-        if (entity.isOnGround) {
+        if (entity.onGround()) {
             stack.set(GlaxxDataComponents.DASHES, maxDashes)
         }
     }

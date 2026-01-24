@@ -1,67 +1,67 @@
 package com.kylelovestoad.glaxxcraft.effects
 
-import net.minecraft.entity.Entity
-import net.minecraft.entity.EntityType
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.SpawnReason
-import net.minecraft.entity.effect.StatusEffect
-import net.minecraft.entity.effect.StatusEffectCategory
-import net.minecraft.particle.ParticleEffect
-import net.minecraft.registry.tag.TagKey
-import net.minecraft.server.world.ServerWorld
-import net.minecraft.world.World
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.EntitySpawnReason
+import net.minecraft.world.effect.MobEffect
+import net.minecraft.world.effect.MobEffectCategory
+import net.minecraft.core.particles.ParticleOptions
+import net.minecraft.tags.TagKey
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.level.Level
 
-abstract class PolymorphEffect : StatusEffect {
+abstract class PolymorphEffect : MobEffect {
 
     constructor(
-        effect: StatusEffectCategory,
+        effect: MobEffectCategory,
         color: Int
     ) : super(effect, color)
 
     constructor(
-        effect: StatusEffectCategory,
+        effect: MobEffectCategory,
         color: Int,
-        particleEffect: ParticleEffect,
+        particleEffect: ParticleOptions,
     ) : super(effect, color, particleEffect)
 
     abstract fun getPolymorphedEntity(): EntityType<*>?
 
 
-    fun polymorph(world: ServerWorld, target: LivingEntity) {
+    fun polymorph(world: ServerLevel, target: LivingEntity) {
 
-        val targetPos = target.entityPos
-        val yaw = target.yaw
-        val pitch = target.pitch
-        val headYaw = target.headYaw
+        val targetPos = target.position()
+        val yaw = target.yRot
+        val pitch = target.xRot
+        val headYaw = target.yHeadRot
 
         val createdEntityType = getPolymorphedEntity() ?: return
         if (target.type == createdEntityType) return
-        if (target.isPlayer) return
+        if (target.isAlwaysTicking) return
 
         target.discard()
 
         val createdEntity = createdEntityType.create(
             world,
-            SpawnReason.CONVERSION,
+            EntitySpawnReason.CONVERSION,
         ) ?: return
 
-        createdEntity.setPosition(targetPos)
-        createdEntity.yaw = yaw
-        createdEntity.pitch = pitch
-        createdEntity.headYaw = headYaw
+        createdEntity.setPos(targetPos)
+        createdEntity.setYRot(yaw)
+        createdEntity.setXRot(pitch)
+        createdEntity.yHeadRot = headYaw
 
-        world.spawnEntity(createdEntity)
+        world.addFreshEntity(createdEntity)
     }
 
-    override fun applyInstantEffect(
-        world: ServerWorld,
+    override fun applyInstantenousEffect(
+        world: ServerLevel,
         source: Entity?,
         attacker: Entity?,
         target: LivingEntity,
         amplifier: Int,
         proximity: Double
     ) {
-        super.applyInstantEffect(world, source, attacker, target, amplifier, proximity)
+        super.applyInstantenousEffect(world, source, attacker, target, amplifier, proximity)
 
         polymorph(world, target)
     }

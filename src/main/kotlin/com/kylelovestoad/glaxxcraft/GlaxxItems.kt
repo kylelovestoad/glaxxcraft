@@ -8,14 +8,14 @@ import com.kylelovestoad.glaxxcraft.items.DashItem
 import com.kylelovestoad.glaxxcraft.items.KeyItem
 import com.kylelovestoad.glaxxcraft.items.PortablePortal
 import net.fabricmc.api.ModInitializer
-import net.minecraft.block.Block
-import net.minecraft.item.Item
-import net.minecraft.registry.Registries
-import net.minecraft.registry.Registry
-import net.minecraft.registry.RegistryKey
-import net.minecraft.registry.RegistryKeys
-import net.minecraft.util.Identifier
-import net.minecraft.util.Rarity
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.item.Item
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.Registry
+import net.minecraft.resources.ResourceKey
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.Identifier
+import net.minecraft.world.item.Rarity
 import java.util.function.Supplier
 
 object GlaxxItems : ModInitializer {
@@ -26,11 +26,11 @@ object GlaxxItems : ModInitializer {
     val LOCKED_CHEST: Item = register("locked_chest") { settings -> LockedChestBlockItem(settings) }
     val BLORB: Item = register("blorb") { settings -> Blorb(settings) }
 
-    private fun register(name: String, factory: (Item.Settings) -> Item): Item {
-        val itemKey: RegistryKey<Item> = RegistryKey.of(RegistryKeys.ITEM, Identifier.of(MOD_ID, name))
-        val settings = Item.Settings().registryKey(itemKey)
+    private fun register(name: String, factory: (Item.Properties) -> Item): Item {
+        val itemKey: ResourceKey<Item> = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(MOD_ID, name))
+        val settings = Item.Properties().setId(itemKey)
         val item = factory(settings)
-        return Registry.register(Registries.ITEM, itemKey, item)
+        return Registry.register(BuiltInRegistries.ITEM, itemKey, item)
     }
 
     override fun onInitialize() {}

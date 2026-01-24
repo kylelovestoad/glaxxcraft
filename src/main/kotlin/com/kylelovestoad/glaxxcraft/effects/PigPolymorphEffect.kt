@@ -1,18 +1,18 @@
 package com.kylelovestoad.glaxxcraft.effects
 
-import net.minecraft.entity.EntityType
-import net.minecraft.entity.effect.StatusEffectCategory
-import net.minecraft.entity.mob.MobEntity
-import net.minecraft.entity.passive.PigEntity
-import net.minecraft.registry.tag.TagKey
-import net.minecraft.world.World
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.effect.MobEffectCategory
+import net.minecraft.world.entity.Mob
+import net.minecraft.world.entity.animal.pig.Pig
+import net.minecraft.tags.TagKey
+import net.minecraft.world.level.Level
 
 class PigPolymorphEffect() : PolymorphEffect (
-    StatusEffectCategory.NEUTRAL,
+    MobEffectCategory.NEUTRAL,
     0xf5c2e7
 ) {
 
-    override fun isInstant(): Boolean {
+    override fun isInstantenous(): Boolean {
         return true
     }
 

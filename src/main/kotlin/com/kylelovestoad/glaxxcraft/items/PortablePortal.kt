@@ -1,68 +1,68 @@
 package com.kylelovestoad.glaxxcraft.items
 
 import com.kylelovestoad.glaxxcraft.GlaxxSaveState
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.item.Item
-import net.minecraft.item.ItemUsageContext
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Rarity
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.context.UseOnContext
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.item.Rarity
 
-class PortablePortal(settings: Settings) : Item(settings) {
+class PortablePortal(settings: Properties) : Item(settings) {
     val portalWidth = 3
     val portalHeight = 3
     val portalDepth = 20
     val portalTicks = 140
     val cooldownTicks = 60
 
-    override fun useOnBlock(context: ItemUsageContext): ActionResult {
-        super.useOnBlock(context)
+    override fun useOn(context: UseOnContext): InteractionResult {
+        super.useOn(context)
 
-        val player = context.player ?: return ActionResult.FAIL
+        val player = context.player ?: return InteractionResult.FAIL
 
-        val playerFacing = player.facing
-        val playerHorizontalFacing = player.horizontalFacing
+        val playerFacing = player.nearestViewDirection
+        val playerHorizontalFacing = player.direction
 
-        val left = playerHorizontalFacing.rotateYCounterclockwise().vector
-        val up = playerFacing.vector.crossProduct(left)
+        val left = playerHorizontalFacing.counterClockWise.unitVec3i
+        val up = playerFacing.unitVec3i.cross(left)
 
         // start position is up/left half the height/width since it is centered
-        val startPos = context.blockPos
-            .add(up.multiply(portalHeight / 2))
-            .add(left.multiply(portalWidth / 2))
+        val startPos = context.clickedPos
+            .offset(up.multiply(portalHeight / 2))
+            .offset(left.multiply(portalWidth / 2))
 
-        val server = context.world.server ?: return ActionResult.FAIL
+        val server = context.level.server ?: return InteractionResult.FAIL
         val save = GlaxxSaveState.loadSave(server)
 
         for (i in 0..<portalWidth) {
             for (j in 0..<portalHeight) {
                 for (k in 0..<portalDepth) {
                     val blockPos = startPos
-                        .add(left.multiply(-i)) // going right from leftmost point
-                        .add(up.multiply(-j)) // going down from upmost point
-                        .add(playerFacing.vector.multiply(k))
+                        .offset(left.multiply(-i)) // going right from leftmost point
+                        .offset(up.multiply(-j)) // going down from upmost point
+                        .offset(playerFacing.unitVec3i.multiply(k))
 
-                    val blockState = context.world.getBlockState(blockPos)
+                    val blockState = context.level.getBlockState(blockPos)
                     // Air cannot be consumed because it is already nothing, causes issues with intersecting portals
                     // Bedrock and other unbreakable blocks should not be consumed
-                    if (blockState.isAir || blockState.block.hardness == -1f) continue
+                    if (blockState.isAir || blockState.block.defaultDestroyTime() == -1f) continue
 
                     save.portalConsumedBlocks.add(PortalConsumedBlock(
                         blockPos,
-                        context.world.getBlockState(blockPos),
-                        context.world.registryKey,
+                        context.level.getBlockState(blockPos),
+                        context.level.dimension(),
                         portalTicks,
                     ))
 
-                    save.markDirty()
+                    save.setDirty()
 
-                    context.world.setBlockState(blockPos, Blocks.AIR.defaultState, Block.FORCE_STATE_AND_SKIP_CALLBACKS_AND_DROPS)
+                    context.level.setBlock(blockPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_SKIP_ALL_SIDEEFFECTS)
                 }
             }
         }
 
-        player.itemCooldownManager.set(context.stack, cooldownTicks)
+        player.cooldowns.addCooldown(context.itemInHand, cooldownTicks)
 
-        return ActionResult.SUCCESS
+        return InteractionResult.SUCCESS
     }
 }

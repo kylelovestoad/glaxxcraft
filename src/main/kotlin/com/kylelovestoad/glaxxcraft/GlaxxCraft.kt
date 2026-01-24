@@ -5,11 +5,11 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.fabricmc.fabric.api.item.v1.ComponentTooltipAppenderRegistry
-import net.minecraft.entity.damage.DamageTypes
-import net.minecraft.registry.Registries
-import net.minecraft.registry.Registry
-import net.minecraft.server.network.ServerPlayerEntity
-import net.minecraft.util.Identifier
+import net.minecraft.world.damagesource.DamageTypes
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.Registry
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.resources.Identifier
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -38,11 +38,11 @@ object GlaxxCraft : ModInitializer {
 
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register { entity, source, _ ->
 			// We only care about players receiving fall damage
-			if (entity !is ServerPlayerEntity || !source.isOf(DamageTypes.FALL)) {
+			if (entity !is ServerPlayer || !source.`is`(DamageTypes.FALL)) {
 				return@register true
 			}
 
-			val isHoldingItem = entity.mainHandStack.isOf(GlaxxItems.DASH)
+			val isHoldingItem = entity.mainHandItem.`is`(GlaxxItems.DASH)
 			return@register !isHoldingItem
 		}
 
@@ -55,8 +55,8 @@ object GlaxxCraft : ModInitializer {
                 consumedBlock.ticksLeft--
 
                 if (consumedBlock.ticksLeft <= 0) {
-                    val world = server.getWorld(consumedBlock.worldRegistryKey) ?: return@removeIf true
-                    world.setBlockState(consumedBlock.blockPos, consumedBlock.blockState)
+                    val world = server.getLevel(consumedBlock.worldRegistryKey) ?: return@removeIf true
+                    world.setBlockAndUpdate(consumedBlock.blockPos, consumedBlock.blockState)
                     return@removeIf true
                 }
                 return@removeIf false

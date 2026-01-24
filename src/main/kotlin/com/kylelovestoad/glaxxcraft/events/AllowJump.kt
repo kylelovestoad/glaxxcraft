@@ -1,15 +1,15 @@
 package com.kylelovestoad.glaxxcraft.events
 import net.fabricmc.fabric.api.event.Event
 import net.fabricmc.fabric.api.event.EventFactory
-import net.minecraft.entity.LivingEntity
-import net.minecraft.util.ActionResult
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.InteractionResult
 
 fun interface AllowJump {
     /**
      * Called when a living entity jumps.
      * @param entity The entity that is jumping.
      */
-    fun allowJump(entity: LivingEntity): ActionResult
+    fun allowJump(entity: LivingEntity): InteractionResult
 
     companion object {
         @JvmField
@@ -20,12 +20,12 @@ fun interface AllowJump {
                 for (listener in listeners) {
                     var result = listener.allowJump(entity)
 
-                    if (result != ActionResult.PASS) {
+                    if (result != InteractionResult.PASS) {
                         return@AllowJump result
                     }
                 }
 
-                return@AllowJump ActionResult.PASS
+                return@AllowJump InteractionResult.PASS
             }
         }
     }

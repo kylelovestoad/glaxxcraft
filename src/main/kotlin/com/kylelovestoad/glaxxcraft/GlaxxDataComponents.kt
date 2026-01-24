@@ -2,35 +2,35 @@ package com.kylelovestoad.glaxxcraft
 
 import com.mojang.serialization.Codec
 import net.fabricmc.api.ModInitializer
-import net.minecraft.block.BlockState
-import net.minecraft.component.ComponentType
-import net.minecraft.item.BlockItem
-import net.minecraft.registry.Registries
-import net.minecraft.registry.Registry
-import net.minecraft.text.TextCodecs
-import net.minecraft.util.Identifier
-import net.minecraft.util.Uuids
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.core.component.DataComponentType
+import net.minecraft.world.item.BlockItem
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.Registry
+import net.minecraft.network.chat.ComponentSerialization
+import net.minecraft.resources.Identifier
+import net.minecraft.core.UUIDUtil
 import java.util.function.UnaryOperator
 
 object GlaxxDataComponents : ModInitializer {
 
     // Dash Item
-    val DASHES: ComponentType<Int> = register("dashes")  { builder -> builder.codec(Codec.INT) }
-    val DASHING: ComponentType<Boolean> = register("dashing")  { builder -> builder.codec(Codec.BOOL) }
-    val DASH_TICKS_LEFT: ComponentType<Int> = register("dash_ticks_left")  { builder -> builder.codec(Codec.INT) }
-    val WAS_IN_FLUID: ComponentType<Boolean> = register("was_in_fluid") { builder -> builder.codec(Codec.BOOL)}
+    val DASHES: DataComponentType<Int> = register("dashes")  { builder -> builder.persistent(Codec.INT) }
+    val DASHING: DataComponentType<Boolean> = register("dashing")  { builder -> builder.persistent(Codec.BOOL) }
+    val DASH_TICKS_LEFT: DataComponentType<Int> = register("dash_ticks_left")  { builder -> builder.persistent(Codec.INT) }
+    val WAS_IN_FLUID: DataComponentType<Boolean> = register("was_in_fluid") { builder -> builder.persistent(Codec.BOOL)}
 
-    val OWNER = register("owner") { builder -> builder.codec(Uuids.CODEC) }
-    val OWNER_NAME = register("owner_name") { builder -> builder.codec(TextCodecs.CODEC) }
-    val ORIGINAL = register("original") { builder -> builder.codec(BlockState.CODEC) }
+    val OWNER = register("owner") { builder -> builder.persistent(UUIDUtil.AUTHLIB_CODEC) }
+    val OWNER_NAME = register("owner_name") { builder -> builder.persistent(ComponentSerialization.CODEC) }
+    val ORIGINAL = register("original") { builder -> builder.persistent(BlockState.CODEC) }
 
-    val BLOCK_STATE = register("block_state") { builder -> builder.codec(BlockState.CODEC) }
+    val BLOCK_STATE = register("block_state") { builder -> builder.persistent(BlockState.CODEC) }
 
-    fun <T> register(name: String, builderOperator: UnaryOperator<ComponentType.Builder<T>>): ComponentType<T> {
+    fun <T : Any> register(name: String, builderOperator: UnaryOperator<DataComponentType.Builder<T>>): DataComponentType<T> {
         return Registry.register(
-            Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(name, GlaxxCraft.MOD_ID),
-            builderOperator.apply(ComponentType.builder<T>() ).build()
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Identifier.fromNamespaceAndPath(name, GlaxxCraft.MOD_ID),
+            builderOperator.apply(DataComponentType.builder() ).build()
         )
     }
 

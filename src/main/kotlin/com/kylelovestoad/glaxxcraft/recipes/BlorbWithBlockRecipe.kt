@@ -2,30 +2,30 @@ package com.kylelovestoad.glaxxcraft.recipes
 
 import com.kylelovestoad.glaxxcraft.GlaxxDataComponents
 import com.kylelovestoad.glaxxcraft.GlaxxItems
-import net.minecraft.block.Block
-import net.minecraft.block.Blocks
-import net.minecraft.item.BlockItem
-import net.minecraft.item.ItemStack
-import net.minecraft.recipe.RecipeSerializer
-import net.minecraft.recipe.SpecialCraftingRecipe
-import net.minecraft.recipe.book.CraftingRecipeCategory
-import net.minecraft.recipe.input.CraftingRecipeInput
-import net.minecraft.registry.RegistryWrapper
-import net.minecraft.world.World
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.crafting.RecipeSerializer
+import net.minecraft.world.item.crafting.CustomRecipe
+import net.minecraft.world.item.crafting.CraftingBookCategory
+import net.minecraft.world.item.crafting.CraftingInput
+import net.minecraft.core.HolderLookup
+import net.minecraft.world.level.Level
 
 
-class BlorbWithBlockRecipe(category: CraftingRecipeCategory) : SpecialCraftingRecipe(category) {
+class BlorbWithBlockRecipe(category: CraftingBookCategory) : CustomRecipe(category) {
 
     fun createBlorbForItem(block: Block): ItemStack {
         val itemStack = ItemStack(GlaxxItems.BLORB)
-        itemStack.set(GlaxxDataComponents.BLOCK_STATE, block.defaultState)
+        itemStack.set(GlaxxDataComponents.BLOCK_STATE, block.defaultBlockState())
         return itemStack
     }
 
-    fun getOutput(input: CraftingRecipeInput): ItemStack {
+    fun getOutput(input: CraftingInput): ItemStack {
         var blorb: ItemStack? = null
         var block: Block? = null
-        for (stack in input.stacks) {
+        for (stack in input.items()) {
 
             val item = stack.item
             if (item == GlaxxItems.BLORB) {
@@ -58,23 +58,23 @@ class BlorbWithBlockRecipe(category: CraftingRecipeCategory) : SpecialCraftingRe
         return createBlorbForItem(block)
     }
 
-    override fun getSerializer(): RecipeSerializer<out SpecialCraftingRecipe> = Serializer
+    override fun getSerializer(): RecipeSerializer<out CustomRecipe> = Serializer
 
     override fun matches(
-        input: CraftingRecipeInput,
-        world: World
+        input: CraftingInput,
+        world: Level
     ): Boolean = !getOutput(input).isEmpty
 
 
-    override fun craft(
-        input: CraftingRecipeInput,
-        registries: RegistryWrapper.WrapperLookup
+    override fun assemble(
+        input: CraftingInput,
+        registries: HolderLookup.Provider
     ): ItemStack {
         return getOutput(input)
     }
 
     companion object {
-        val Serializer = SpecialRecipeSerializer(::BlorbWithBlockRecipe)
+        val Serializer = Serializer(::BlorbWithBlockRecipe)
     }
 
 }

@@ -11,87 +11,87 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder.BuildCallback
-import net.minecraft.entity.effect.StatusEffect
-import net.minecraft.entity.effect.StatusEffectInstance
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Items
-import net.minecraft.potion.Potion
-import net.minecraft.potion.Potions
-import net.minecraft.recipe.BrewingRecipeRegistry
-import net.minecraft.registry.Registries
-import net.minecraft.registry.Registry
-import net.minecraft.registry.entry.RegistryEntry
-import net.minecraft.sound.SoundCategory
-import net.minecraft.sound.SoundEvents
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Identifier
+import net.minecraft.world.effect.MobEffect
+import net.minecraft.world.effect.MobEffectInstance
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.alchemy.Potion
+import net.minecraft.world.item.alchemy.Potions
+import net.minecraft.world.item.alchemy.PotionBrewing
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.Registry
+import net.minecraft.core.Holder
+import net.minecraft.sounds.SoundSource
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.world.InteractionResult
+import net.minecraft.resources.Identifier
 
 object GlaxxEffects : ModInitializer {
 
-    val GROUNDED: RegistryEntry<StatusEffect> = registerEffect("grounded", GroundedEffect())
+    val GROUNDED: Holder<MobEffect> = registerEffect("grounded", GroundedEffect())
     val GROUNDED_POTION: Potion = registerPotion(
         "grounded",
         GROUNDED,
         500, 0
     )
 
-    val POLYMORPH: RegistryEntry<StatusEffect> = registerEffect("polymorph", PigPolymorphEffect())
+    val POLYMORPH: Holder<MobEffect> = registerEffect("polymorph", PigPolymorphEffect())
     val POLYMORPH_POTION: Potion = registerPotion("polymorph", POLYMORPH, 1, 0)
 
-    val CHAOTIC_POLYMORPH: RegistryEntry<StatusEffect> = registerEffect("chaotic_polymorph", ChaoticPolymorphEffect())
+    val CHAOTIC_POLYMORPH: Holder<MobEffect> = registerEffect("chaotic_polymorph", ChaoticPolymorphEffect())
     val CHAOTIC_POLYMORPH_POTION: Potion = registerPotion("chaotic_polymorph",CHAOTIC_POLYMORPH, 1, 0)
 
-    val VULNERABLE: RegistryEntry<StatusEffect> = registerEffect("vulnerable", VulnerableEffect())
+    val VULNERABLE: Holder<MobEffect> = registerEffect("vulnerable", VulnerableEffect())
     val VULNERABLE_POTION: Potion = registerPotion("vulnerable",VULNERABLE, 3600, 0)
     val VULNERABLE_POTION_II: Potion = registerPotion("vulnerable_ii",VULNERABLE, 1800, 1)
 
-    val MANTLE: RegistryEntry<StatusEffect> = registerEffect("mantle", MantleEffect())
+    val MANTLE: Holder<MobEffect> = registerEffect("mantle", MantleEffect())
 
-    fun registerEffect(name: String, effect: StatusEffect): RegistryEntry<StatusEffect> {
-        return Registry.registerReference(
-            Registries.STATUS_EFFECT,
-            Identifier.of(MOD_ID, name),
+    fun registerEffect(name: String, effect: MobEffect): Holder<MobEffect> {
+        return Registry.registerForHolder(
+            BuiltInRegistries.MOB_EFFECT,
+            Identifier.fromNamespaceAndPath(MOD_ID, name),
             effect
         )
     }
 
-    fun registerPotion(name: String, effect: RegistryEntry<StatusEffect>, duration: Int, amplifier: Int): Potion {
+    fun registerPotion(name: String, effect: Holder<MobEffect>, duration: Int, amplifier: Int): Potion {
         return Registry.register(
-            Registries.POTION,
-            Identifier.of(MOD_ID, name),
+            BuiltInRegistries.POTION,
+            Identifier.fromNamespaceAndPath(MOD_ID, name),
             Potion(
                 name,
-                StatusEffectInstance(effect, duration, amplifier)
+                MobEffectInstance(effect, duration, amplifier)
             )
         )
     }
 
 
     override fun onInitialize() {
-        FabricBrewingRecipeRegistryBuilder.BUILD.register(BuildCallback { builder: BrewingRecipeRegistry.Builder ->
-            builder.registerPotionRecipe(
+        FabricBrewingRecipeRegistryBuilder.BUILD.register(BuildCallback { builder: PotionBrewing.Builder ->
+            builder.addMix(
                 Potions.AWKWARD,
                 Items.DIRT,
-                Registries.POTION.getEntry(GROUNDED_POTION)
+                BuiltInRegistries.POTION.wrapAsHolder(GROUNDED_POTION)
             )
         })
 
         AllowJump.EVENT.register { entity ->
 
-            if (entity.hasStatusEffect(GROUNDED)) {
-                return@register ActionResult.FAIL
+            if (entity.hasEffect(GROUNDED)) {
+                return@register InteractionResult.FAIL
             }
 
-            return@register ActionResult.PASS
+            return@register InteractionResult.PASS
         }
 
         ServerLivingEntityEvents.ALLOW_DAMAGE.register{ entity, _, _ ->
 
-            if (entity.hasStatusEffect(MANTLE)) {
-                entity.removeStatusEffect(MANTLE)
+            if (entity.hasEffect(MANTLE)) {
+                entity.removeEffect(MANTLE)
 
-                if (entity is PlayerEntity) {
-                    entity.playSoundToPlayer(SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE.value(), SoundCategory.PLAYERS,1f, 2f)
+                if (entity is Player) {
+                    entity.playSound(SoundEvents.RESPAWN_ANCHOR_DEPLETE.value(),1f, 2f)
                 }
                 return@register false
             }

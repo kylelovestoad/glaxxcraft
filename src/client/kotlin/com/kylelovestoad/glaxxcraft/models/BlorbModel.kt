@@ -2,23 +2,25 @@ package com.kylelovestoad.glaxxcraft.models
 
 import com.kylelovestoad.glaxxcraft.GlaxxCraft.MOD_ID
 import com.kylelovestoad.glaxxcraft.GlaxxDataComponents
-import net.minecraft.block.BlockState
-import net.minecraft.client.render.command.OrderedRenderCommandQueue
-import net.minecraft.client.render.item.model.special.SpecialModelRenderer
-import net.minecraft.client.render.item.model.special.TridentModelRenderer
-import net.minecraft.client.texture.Sprite
-import net.minecraft.client.util.math.MatrixStack
-import net.minecraft.item.ItemDisplayContext
-import net.minecraft.item.ItemStack
-import net.minecraft.util.Identifier
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.client.renderer.SubmitNodeCollector
+import net.minecraft.client.renderer.special.SpecialModelRenderer
+import net.minecraft.client.renderer.special.TridentSpecialRenderer
+import net.minecraft.client.renderer.texture.TextureAtlasSprite
+import com.mojang.blaze3d.vertex.PoseStack
+import net.minecraft.world.item.ItemDisplayContext
+import net.minecraft.world.item.ItemStack
+import net.minecraft.resources.Identifier
 import org.joml.Vector3f
+import org.joml.Vector3fc
+import java.util.function.Consumer
 
 class BlorbModel() : SpecialModelRenderer<BlockState> {
-    override fun render(
+    override fun submit(
         data: BlockState?,
         displayContext: ItemDisplayContext,
-        matrices: MatrixStack,
-        queue: OrderedRenderCommandQueue,
+        matrices: PoseStack,
+        queue: SubmitNodeCollector,
         light: Int,
         overlay: Int,
         glint: Boolean,
@@ -27,9 +29,9 @@ class BlorbModel() : SpecialModelRenderer<BlockState> {
         
     }
 
-    override fun collectVertices(vertices: Set<Vector3f>) {}
+    override fun getExtents(consumer: Consumer<Vector3fc>) {}
 
-    override fun getData(stack: ItemStack?): BlockState? {
-        return stack?.get(GlaxxDataComponents.BLOCK_STATE)
+    override fun extractArgument(itemStack: ItemStack): BlockState? {
+        return itemStack.get(GlaxxDataComponents.BLOCK_STATE)
     }
 }

@@ -1,11 +1,11 @@
 package com.kylelovestoad.glaxxcraft.effects
 
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.damage.DamageSource
-import net.minecraft.entity.effect.StatusEffect
-import net.minecraft.entity.effect.StatusEffectCategory
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.world.effect.MobEffect
+import net.minecraft.world.effect.MobEffectCategory
 
-class VulnerableEffect : StatusEffect(
-    StatusEffectCategory.HARMFUL,
+class VulnerableEffect : MobEffect(
+    MobEffectCategory.HARMFUL,
     0x590016
 )

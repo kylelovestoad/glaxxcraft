@@ -1,53 +1,53 @@
 package com.kylelovestoad.glaxxcraft.blocks.lockedchest
 
 import com.kylelovestoad.glaxxcraft.GlaxxDataComponents
-import net.minecraft.block.AbstractBlock
-import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
-import net.minecraft.block.ChestBlock
-import net.minecraft.block.entity.BlockEntity
-import net.minecraft.block.entity.BlockEntityType
-import net.minecraft.block.entity.ChestBlockEntity
-import net.minecraft.entity.LivingEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.server.ServerMetadata
-import net.minecraft.sound.SoundCategory
-import net.minecraft.sound.SoundEvent
-import net.minecraft.sound.SoundEvents
-import net.minecraft.text.Text
-import net.minecraft.util.ActionResult
-import net.minecraft.util.hit.BlockHitResult
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.BlockView
-import net.minecraft.world.World
+import net.minecraft.world.level.block.state.BlockBehaviour
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.ChestBlock
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.level.block.entity.ChestBlockEntity
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.network.protocol.status.ServerStatus
+import net.minecraft.sounds.SoundSource
+import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.network.chat.Component
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.BlockGetter
+import net.minecraft.world.level.Level
 import java.util.UUID
 import java.util.function.Supplier
 import kotlin.jvm.optionals.getOrNull
 
 class LockedChestBlock(
     blockEntityTypeSupplier: Supplier<BlockEntityType<out ChestBlockEntity>>,
-    settings: Settings,
+    settings: Properties,
 ) : ChestBlock(
     blockEntityTypeSupplier,
-    SoundEvents.BLOCK_CHEST_OPEN,
-    SoundEvents.BLOCK_CHEST_CLOSE,
+    SoundEvents.CHEST_OPEN,
+    SoundEvents.CHEST_CLOSE,
     settings
 ) {
 
 
-    override fun createBlockEntity(pos: BlockPos, state: BlockState): BlockEntity {
+    override fun newBlockEntity(pos: BlockPos, state: BlockState): BlockEntity {
         return LockedChestBlockEntity(pos, state)
     }
 
-    fun isOwner(owner: UUID, player: PlayerEntity): Boolean {
+    fun isOwner(owner: UUID, player: Player): Boolean {
         return player.uuid == owner
     }
 
-    override fun calcBlockBreakingDelta(
+    override fun getDestroyProgress(
         state: BlockState,
-        player: PlayerEntity,
-        world: BlockView,
+        player: Player,
+        world: BlockGetter,
         pos: BlockPos
     ): Float {
 
@@ -58,60 +58,60 @@ class LockedChestBlock(
             return 0.0f
         }
 
-        val multiplier = if (player.canHarvest(state)) 30 else 100
-        return player.getBlockBreakingSpeed(state) / hardness / multiplier.toFloat()
+        val multiplier = if (player.hasCorrectToolForDrops(state)) 30 else 100
+        return player.getDestroySpeed(state) / defaultDestroyTime() / multiplier.toFloat()
     }
 
-    override fun onBlockBreakStart(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity) {
+    override fun attack(state: BlockState, world: Level, pos: BlockPos, player: Player) {
 
         val blockEntity = world.getBlockEntity(pos) as? LockedChestBlockEntity ?: return
         val owner = blockEntity.owner ?: return
 
         if (!isOwner(owner, player)) {
-            if (!world.isClient) {
-                player.sendMessage(Text.translatable("container.locked_chest.failbreak"), true)
+            if (!world.isClientSide) {
+                player.displayClientMessage(Component.translatable("container.locked_chest.failbreak"), true)
             }
             return
         }
 
-        super.onBlockBreakStart(state, world, pos, player)
+        super.attack(state, world, pos, player)
     }
 
-    override fun onUse(
+    override fun useWithoutItem(
         state: BlockState,
-        world: World,
+        world: Level,
         pos: BlockPos,
-        player: PlayerEntity,
+        player: Player,
         hit: BlockHitResult
-    ): ActionResult {
+    ): InteractionResult {
 
-        val blockEntity = world.getBlockEntity(pos) as? LockedChestBlockEntity ?: return ActionResult.FAIL
-        val owner = blockEntity.owner ?: return ActionResult.FAIL
+        val blockEntity = world.getBlockEntity(pos) as? LockedChestBlockEntity ?: return InteractionResult.FAIL
+        val owner = blockEntity.owner ?: return InteractionResult.FAIL
 
         if (!isOwner(owner, player) and !player.isCreative) {
-            if (!world.isClient) {
-                player.playSoundToPlayer(SoundEvents.BLOCK_CHEST_LOCKED, SoundCategory.BLOCKS, 1f, 1.5f)
-                player.sendMessage(Text.translatable("container.locked_chest.locked"), true)
+            if (!world.isClientSide) {
+                player.playSound(SoundEvents.CHEST_LOCKED, 1f, 1.5f)
+                player.displayClientMessage(Component.translatable("container.locked_chest.locked"), true)
             }
-            return ActionResult.FAIL
+            return InteractionResult.FAIL
         }
 
-        return super.onUse(state, world, pos, player, hit)
+        return super.useWithoutItem(state, world, pos, player, hit)
     }
 
-    override fun onPlaced(
-        world: World,
+    override fun setPlacedBy(
+        world: Level,
         pos: BlockPos,
         state: BlockState,
         placer: LivingEntity?,
         itemStack: ItemStack
     ) {
-        super.onPlaced(world, pos, state, placer, itemStack)
+        super.setPlacedBy(world, pos, state, placer, itemStack)
 
         val blockEntity = world.getBlockEntity(pos) as? LockedChestBlockEntity ?: return
         val owner = itemStack.get(GlaxxDataComponents.OWNER) ?: return
         blockEntity.owner = owner
 
-        blockEntity.markDirty()
+        blockEntity.setChanged()
     }
 }

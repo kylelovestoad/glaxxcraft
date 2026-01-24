@@ -3,64 +3,64 @@ package com.kylelovestoad.glaxxcraft.items
 import com.kylelovestoad.glaxxcraft.GlaxxDataComponents
 import com.kylelovestoad.glaxxcraft.GlaxxItems
 import com.kylelovestoad.glaxxcraft.entities.ThrownBlorb
-import net.minecraft.block.ChestBlock
-import net.minecraft.component.ComponentsAccess
-import net.minecraft.component.type.TooltipDisplayComponent
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
-import net.minecraft.item.ItemStack
-import net.minecraft.item.tooltip.TooltipAppender
-import net.minecraft.item.tooltip.TooltipType
-import net.minecraft.sound.SoundCategory
-import net.minecraft.sound.SoundEvents
-import net.minecraft.stat.Stats
-import net.minecraft.text.Text
-import net.minecraft.util.ActionResult
-import net.minecraft.util.Hand
-import net.minecraft.world.World
+import net.minecraft.world.level.block.ChestBlock
+import net.minecraft.core.component.DataComponentGetter
+import net.minecraft.world.item.component.TooltipDisplay
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.component.TooltipProvider
+import net.minecraft.world.item.TooltipFlag
+import net.minecraft.sounds.SoundSource
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.stats.Stats
+import net.minecraft.network.chat.Component
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.level.Level
 import java.util.function.Consumer
 
 
-class Blorb(settings: Settings): Item(settings), TooltipAppender {
+class Blorb(settings: Properties): Item(settings), TooltipProvider {
 
-    override fun use(world: World, player: PlayerEntity, hand: Hand): ActionResult {
-        val stack = player.getStackInHand(hand)
+    override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResult {
+        val stack = player.getItemInHand(hand)
 
         world.playSound(
             null, player.x, player.y, player.z,
-            SoundEvents.ENTITY_ENDER_PEARL_THROW, SoundCategory.NEUTRAL,
+            SoundEvents.ENDER_PEARL_THROW, SoundSource.NEUTRAL,
             0.5f, 0.4f / (world.getRandom().nextFloat() * 0.4f + 0.8f)
         )
 
-        if (!world.isClient) {
+        if (!world.isClientSide) {
             val blockState = stack.get(GlaxxDataComponents.BLOCK_STATE)
 
             val itemToShow = blockState?.block?.asItem() ?: GlaxxItems.BLORB
-            val blorbEntity = ThrownBlorb(world, player, itemToShow.defaultStack)
+            val blorbEntity = ThrownBlorb(world, player, itemToShow.defaultInstance)
 
             blorbEntity.blockState = blockState
 
-            blorbEntity.setVelocity(player, player.pitch, player.yaw, 0.0f, 1.5f, 0.0f)
+            blorbEntity.shootFromRotation(player, player.xRot, player.yRot, 0.0f, 1.5f, 0.0f)
 
-            world.spawnEntity(blorbEntity)
+            world.addFreshEntity(blorbEntity)
         }
 
 
-        player.incrementStat(Stats.USED.getOrCreateStat(this));
-        if (!player.abilities.creativeMode) {
-            stack.decrement(1)
+        player.awardStat(Stats.ITEM_USED.get(this));
+        if (!player.abilities.instabuild) {
+            stack.shrink(1)
         }
 
-        return ActionResult.SUCCESS
+        return InteractionResult.SUCCESS
     }
 
-    override fun appendTooltip(
+    override fun addToTooltip(
         context: TooltipContext,
-        textConsumer: Consumer<Text>,
-        type: TooltipType,
-        components: ComponentsAccess
+        textConsumer: Consumer<Component>,
+        type: TooltipFlag,
+        components: DataComponentGetter
     ) {
         val block = components.get(GlaxxDataComponents.BLOCK_STATE)?.block ?: return
-        textConsumer.accept(Text.translatable("item.glaxxcraft.blorb.tooltip", block.name))
+        textConsumer.accept(Component.translatable("item.glaxxcraft.blorb.tooltip", block.name))
     }
 }

@@ -1,23 +1,25 @@
 package com.kylelovestoad.glaxxcraft.mixin;
 
 import com.kylelovestoad.glaxxcraft.GlaxxEffects;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
+// TODO(Ravel): can not resolve target class LivingEntity
 @Mixin(LivingEntity.class)
 public class ModifyDamageMixin {
-    @ModifyVariable(method = "damage", at = @At("HEAD"), argsOnly = true)
-    private float modifyDamage(float amount, ServerWorld world, DamageSource source) {
+    // TODO(Ravel): no target class
+    @ModifyVariable(method = "hurtServer", at = @At("HEAD"), argsOnly = true)
+    private float modifyDamage(float amount, ServerLevel world, DamageSource source) {
         LivingEntity livingEntity = (LivingEntity)(Object)this;
-        StatusEffectInstance vulnerable = livingEntity.getStatusEffect(GlaxxEffects.INSTANCE.getVULNERABLE());
+        MobEffectInstance vulnerable = livingEntity.getEffect(GlaxxEffects.INSTANCE.getVULNERABLE());
 
-        if (vulnerable == null || source.isOf(DamageTypes.OUT_OF_WORLD) || source.isOf(DamageTypes.STARVE)) {
+        if (vulnerable == null || source.is(DamageTypes.FELL_OUT_OF_WORLD) || source.is(DamageTypes.STARVE)) {
             return amount;
         }
 
