@@ -70,9 +70,9 @@ object GlaxxEffects : ModInitializer {
     override fun onInitialize() {
         FabricBrewingRecipeRegistryBuilder.BUILD.register(BuildCallback { builder: BrewingRecipeRegistry.Builder ->
             builder.registerPotionRecipe(
-                Potions.AWKWARD, // Input potion.
-                Items.DIRT,  // Ingredient
-                Registries.POTION.getEntry(GROUNDED_POTION) // Output potion.
+                Potions.AWKWARD,
+                Items.DIRT,
+                Registries.POTION.getEntry(GROUNDED_POTION)
             )
         })
 
@@ -85,7 +85,7 @@ object GlaxxEffects : ModInitializer {
             return@register ActionResult.PASS
         }
 
-        ServerLivingEntityEvents.ALLOW_DAMAGE.register{ entity, source, amount ->
+        ServerLivingEntityEvents.ALLOW_DAMAGE.register{ entity, _, _ ->
 
             if (entity.hasStatusEffect(MANTLE)) {
                 entity.removeStatusEffect(MANTLE)

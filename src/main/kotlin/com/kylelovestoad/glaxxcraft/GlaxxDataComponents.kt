@@ -2,18 +2,14 @@ package com.kylelovestoad.glaxxcraft
 
 import com.mojang.serialization.Codec
 import net.fabricmc.api.ModInitializer
-import net.minecraft.block.Block
 import net.minecraft.block.BlockState
-import net.minecraft.block.Blocks
 import net.minecraft.component.ComponentType
+import net.minecraft.item.BlockItem
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
-import net.minecraft.text.Style
-import net.minecraft.text.Text
 import net.minecraft.text.TextCodecs
 import net.minecraft.util.Identifier
 import net.minecraft.util.Uuids
-import java.util.UUID
 import java.util.function.UnaryOperator
 
 object GlaxxDataComponents : ModInitializer {
@@ -27,6 +23,8 @@ object GlaxxDataComponents : ModInitializer {
     val OWNER = register("owner") { builder -> builder.codec(Uuids.CODEC) }
     val OWNER_NAME = register("owner_name") { builder -> builder.codec(TextCodecs.CODEC) }
     val ORIGINAL = register("original") { builder -> builder.codec(BlockState.CODEC) }
+
+    val BLOCK_STATE = register("block_state") { builder -> builder.codec(BlockState.CODEC) }
 
     fun <T> register(name: String, builderOperator: UnaryOperator<ComponentType.Builder<T>>): ComponentType<T> {
         return Registry.register(

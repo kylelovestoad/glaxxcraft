@@ -6,5 +6,7 @@
   "effect.glaxxcraft.grounded": "Grounded",
   "item.glaxxcraft.locked_chest.tooltip": "Owner: %s",
   "container.locked_chest.locked": "This chest is locked",
-  "container.locked_chest.failbreak": "You cannot break this chest because it is locked!"
+  "container.locked_chest.failbreak": "You cannot break this chest because it is locked!",
+  "item.glaxxcraft.blorb.tooltip": "Contains: %s",
+  "item.glaxxcraft.blorb": "Blorb"
 }

@@ -11,7 +11,7 @@
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
-	"license": "GPL-3.0-or-later",
+	"license": "MPL-2.0",
 	"icon": "assets/glaxxcraft/icon.png",
 	"environment": "*",
 	"entrypoints": {

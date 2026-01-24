@@ -1,10 +1,15 @@
 package com.kylelovestoad.glaxxcraft
 
+import com.kylelovestoad.glaxxcraft.recipes.BlorbWithBlockRecipe
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
+import net.fabricmc.fabric.api.item.v1.ComponentTooltipAppenderRegistry
 import net.minecraft.entity.damage.DamageTypes
+import net.minecraft.registry.Registries
+import net.minecraft.registry.Registry
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.util.Identifier
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -13,6 +18,7 @@ object GlaxxCraft : ModInitializer {
 
 	const val MOD_ID: String = "glaxxcraft"
     val LOGGER: Logger = LoggerFactory.getLogger(MOD_ID)
+
 
 	override fun onInitialize() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
@@ -26,6 +32,9 @@ object GlaxxCraft : ModInitializer {
 		GlaxxAttachmentTypes.onInitialize()
         GlaxxBlocks.onInitialize()
         GlaxxBlockEntities.onInitialize()
+        GlaxxEntities.onInitialize()
+        GlaxxRecipeSerializers.onInitialize()
+
 
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register { entity, source, _ ->
 			// We only care about players receiving fall damage
@@ -33,7 +42,6 @@ object GlaxxCraft : ModInitializer {
 				return@register true
 			}
 
-			// Check if the player is holding the immunity item in their main hand
 			val isHoldingItem = entity.mainHandStack.isOf(GlaxxItems.DASH)
 			return@register !isHoldingItem
 		}
